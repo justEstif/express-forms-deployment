@@ -40,4 +40,4 @@ AuthorSchema.virtual("url").get(function () {
 
 // export default mongoose.model<IAuthor>("Author", AuthorSchema);
 const Author = model<IAuthor>("Author", AuthorSchema);
-module.exports = Author;
+export default Author

@@ -12,4 +12,4 @@ GenreSchema.virtual("url").get(function () {
 })
 
 const Genre = model<IGenre>("Genre", GenreSchema)
-module.exports = Genre
+export default Genre

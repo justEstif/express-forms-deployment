@@ -22,4 +22,4 @@ BookSchema.virtual("url").get(function () {
 })
 
 const Book = model<IBook>("Book", BookSchema)
-module.exports = Book
+export default Book

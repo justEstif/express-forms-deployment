@@ -24,4 +24,4 @@ BookInstanceSchema.virtual("url").get(function () {
 })
 
 const BookInstance = model<IBookInstance>("BookInstance", BookInstanceSchema)
-module.exports = BookInstance
+export default BookInstance
