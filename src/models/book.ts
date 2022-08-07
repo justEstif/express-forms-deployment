@@ -1,6 +1,14 @@
-import { Schema, model } from "mongoose"
+import { Types, Schema, model } from "mongoose"
 
-const BookSchema = new Schema({
+interface IBook {
+  title: string
+  author: Types.ObjectId
+  summary: string
+  isbn: string
+  genre: Types.ObjectId
+}
+
+const BookSchema = new Schema<IBook>({
   title: { type: String, required: true },
   author: { type: Schema.Types.ObjectId, ref: "Author", required: true },
   summary: { type: String, required: true },
@@ -13,4 +21,5 @@ BookSchema.virtual("url").get(function () {
   return "/catalog/book/" + this._id
 })
 
-export default model("Book", BookSchema)
+const Book = model<IBook>("Book", BookSchema)
+module.exports = Book
