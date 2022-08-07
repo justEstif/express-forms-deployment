@@ -2,9 +2,9 @@ import { Router } from "express"
 
 const router = Router()
 
-/* GET users listing. */
-router.get("/", function (_, res, __) {
-  res.render("index", { title: "Express" })
+// GET home page.
+router.get("/", (_, res) => {
+  res.redirect("/catalog")
 })
 
 export default router
