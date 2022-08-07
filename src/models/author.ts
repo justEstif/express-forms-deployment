@@ -1,6 +1,13 @@
-import { model, Schema } from "mongoose"
+import mongoose from "mongoose"
 
-const AuthorSchema = new Schema({
+interface IAuthor {
+  first_name: string
+  family_name: string
+  date_of_birth?: Date
+  date_of_death?: Date
+}
+
+const AuthorSchema = new mongoose.Schema<IAuthor>({
   first_name: { type: String, required: true, maxLength: 100 },
   family_name: { type: String, required: true, maxLength: 100 },
   date_of_birth: { type: Date },
@@ -32,4 +39,4 @@ AuthorSchema.virtual("url").get(function () {
   return "/catalog/author/" + this._id
 })
 
-export default model("Author", AuthorSchema)
+export default mongoose.model<IAuthor>("Author", AuthorSchema)
