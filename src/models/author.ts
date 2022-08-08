@@ -43,6 +43,5 @@ AuthorSchema.virtual("url").get(function() {
   return "/catalog/author/" + this._id
 })
 
-// export default mongoose.model<IAuthor>("Author", AuthorSchema);
 const Author = model<IAuthor>("Author", AuthorSchema)
 export default Author
