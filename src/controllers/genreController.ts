@@ -1,5 +1,8 @@
-// import Genre from "../models/genre"
 import { RequestHandler } from "express"
+import async from "async"
+
+import Genre from "../models/genre"
+import Book from "../models/book"
 
 // Display list of all Genre.
 export const genre_list: RequestHandler = (_, res, next) => {
@@ -15,8 +18,37 @@ export const genre_list: RequestHandler = (_, res, next) => {
 }
 
 // Display detail page for a specific Genre.
-export const genre_detail: RequestHandler = (_, res) => {
-  res.send(`NOT IMPLEMENTED: Genre detail: ${_.params.id}`)
+export const genre_detail: RequestHandler = (req, res, next) => {
+  async.parallel(
+    {
+      genre(callback) {
+        Genre.findById(req.params.id).exec(callback)
+      },
+
+      genre_books(callback) {
+        Book.find({ genre: req.params.id }).exec(callback)
+      },
+    },
+    function(err, results) {
+
+      if (err) return next(err)
+
+      else if (results.genre == null) {
+        // No results.
+        const err = new Error("Genre not found")
+        res.status(404)
+        return next(err)
+      } else {
+        // Successful, so render
+        res.render("genre_detail", {
+          title: "Genre Detail",
+          genre: results.genre,
+          genre_books: results.genre_books,
+        })
+      }
+
+    }
+  )
 }
 
 // Display Genre create form on GET.
