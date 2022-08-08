@@ -2,8 +2,16 @@
 import { RequestHandler } from "express"
 
 // Display list of all Genre.
-export const genre_list: RequestHandler = (_, res) => {
-  res.send("NOT IMPLEMENTED: Genre list")
+export const genre_list: RequestHandler = (_, res, next) => {
+  Genre.find()
+    .sort({ name: 1 })
+    .exec(function(err, list_genres) {
+      if (err) return next(err)
+      res.render("genre_list", {
+        title: "Genre List",
+        genre_list: list_genres,
+      })
+    })
 }
 
 // Display detail page for a specific Genre.
