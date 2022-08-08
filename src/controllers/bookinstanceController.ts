@@ -1,9 +1,17 @@
-// import BookInstance from "../models/bookinstance"
+import BookInstance from "../models/bookinstance"
 import { RequestHandler } from "express"
 
 // Display: Reques list of _ BookInstances.
-export const bookinstance_list: RequestHandler = (_, res) => {
-  res.send("NOT IMPLEMENTED: BookInstance list")
+export const bookinstance_list: RequestHandler = (_, res, next) => {
+  BookInstance.find()
+    .populate("book") // book id -> full Book doc
+    .exec(function (err, list_bookinstances) {
+      if (err) return next(err)
+      res.render("bookinstance_list", {
+        title: "Book Instance List",
+        bookinstance_list: list_bookinstances,
+      })
+    })
 }
 
 // Display detail page for a specific BookInstance.
