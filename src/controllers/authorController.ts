@@ -1,9 +1,17 @@
-// import Author from "../models/author"
+import Author from "../models/author"
 import { RequestHandler } from "express"
 
 // Display list of all Authors.
-export const author_list: RequestHandler = (_, res) => {
-  res.send("NOT IMPLEMENTED: Author list")
+export const author_list: RequestHandler = (_, res, next) => {
+  Author.find()
+    .sort({ family_name: 1 })
+    .exec(function(err, list_authors) {
+      if (err) return next(err)
+      res.render("author_list", {
+        title: "Author List",
+        author_list: list_authors,
+      })
+    })
 }
 
 // Display detail page for a specific Author.
