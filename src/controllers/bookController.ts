@@ -1,10 +1,10 @@
 import async from "async"
 import { RequestHandler } from "express"
 
-import Book from "../models/book"
+import Book, { IBook } from "../models/book"
 import Author from "../models/author"
 import Genre from "../models/genre"
-import BookInstance from "../models/bookinstance"
+import BookInstance, { IBookInstance } from "../models/bookinstance"
 
 // homepage
 export const index: RequestHandler = (_, res) => {
@@ -26,7 +26,7 @@ export const index: RequestHandler = (_, res) => {
         Genre.countDocuments({}, callback)
       },
     },
-    function (err, results) {
+    function(err, results) {
       res.render("index", {
         // pass the title, err, and data to index.pug
         title: "Local Library Home",
@@ -50,8 +50,44 @@ export const book_list: RequestHandler = (_, res, next) => {
 }
 
 // Display detail page for a specific book.
-export const book_detail: RequestHandler = (_, res) => {
-  res.send(`NOT IMPLEMENTED: Book detail: ${_.params.id}`)
+export const book_detail: RequestHandler = (req, res, next) => {
+  interface IResult extends async.Dictionary<unknown> {
+    book: IBook
+    book_instance: IBookInstance[]
+  }
+  async.parallel(
+    {
+      book(callback) {
+        Book.findById(req.params.id)
+          .populate("author")
+          .populate("genre")
+          .exec(callback)
+      },
+      book_instance(callback) {
+        BookInstance.find({ book: req.params.id }).exec(callback)
+      },
+    },
+    function(err, results) {
+      if (err) {
+        return next(err)
+      }
+      if (results.book == null) {
+        // No results.
+        const err = new Error("Book not found")
+        res.status(404)
+        return next(err)
+      }
+      // Successful, so render.
+      else {
+        const result = results as IResult
+        res.render("book_detail", {
+          title: result.book.title,
+          book: result.book,
+          book_instances: result.book_instance,
+        })
+      }
+    }
+  )
 }
 
 // Display book create form on GET.
