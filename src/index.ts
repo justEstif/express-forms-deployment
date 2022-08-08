@@ -7,7 +7,7 @@ import indexRouter from "./routes"
 import catalogRouter from "./routes/catalog"
 
 // Connect to MongoDB
-mongoose.connect(endpoints.MONGO_URI)
+mongoose.connect(endpoints.MONGO_URL)
 
 const app: express.Express = express()
 
