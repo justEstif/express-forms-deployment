@@ -1,12 +1,13 @@
 import { RequestHandler } from "express"
 
 import BookInstance from "../models/bookinstance"
+import { IBook } from "../models/book"
 
 // Display: Reques list of _ BookInstances.
 export const bookinstance_list: RequestHandler = (_, res, next) => {
   BookInstance.find()
     .populate("book") // book id -> full Book doc
-    .exec(function (err, list_bookinstances) {
+    .exec(function(err, list_bookinstances) {
       if (err) return next(err)
       res.render("bookinstance_list", {
         title: "Book Instance List",
@@ -16,8 +17,24 @@ export const bookinstance_list: RequestHandler = (_, res, next) => {
 }
 
 // Display detail page for a specific BookInstance.
-export const bookinstance_detail: RequestHandler = (_, res) => {
-  res.send(`NOT IMPLEMENTED: BookInstance detail: ${_.params.id}`)
+export const bookinstance_detail: RequestHandler = (req, res, next) => {
+  BookInstance.findById(req.params.id)
+    .populate("book") // get book info
+    .exec(function(err, bookinstance) {
+      if (err) return next(err)
+      else if (bookinstance == null) {
+        // No results.
+        const err = new Error("Book copy not found")
+        res.status(404)
+        return next(err)
+      } else {
+        let book: IBook = bookinstance.book as IBook
+        res.render("bookinstance_detail", {
+          title: book.title,
+          bookinstance,
+        })
+      }
+    })
 }
 
 // Display BookInstance create form on GET.
