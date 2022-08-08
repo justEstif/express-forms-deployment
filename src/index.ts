@@ -12,6 +12,10 @@ mongoose.connect(endpoints.MONGO_URL)
 
 const app: express.Express = express()
 
+//Body Parser Middleware
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
+
 // view engine setup
 app.set("views", path.join(__dirname, "..", "views"))
 app.set("view engine", "pug")
