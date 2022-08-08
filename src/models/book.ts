@@ -17,9 +17,10 @@ const BookSchema = new Schema<IBook>({
 })
 
 // Virtual for book's URL
-BookSchema.virtual("url").get(function () {
+BookSchema.virtual("url").get(function() {
   return "/catalog/book/" + this._id
 })
 
 const Book = model<IBook>("Book", BookSchema)
+export { IBook }
 export default Book

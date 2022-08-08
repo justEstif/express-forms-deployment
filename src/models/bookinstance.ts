@@ -29,4 +29,5 @@ BookInstanceSchema.virtual("due_back_formatted").get(function () {
 })
 
 const BookInstance = model<IBookInstance>("BookInstance", BookInstanceSchema)
+export {IBookInstance}
 export default BookInstance
