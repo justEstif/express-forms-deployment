@@ -32,12 +32,10 @@ export const genre_detail: RequestHandler = (req, res, next) => {
     function(err, results) {
       if (err) return next(err)
       else if (results.genre == null) {
-        // No results.
         const err = new Error("Genre not found")
         res.status(404)
         return next(err)
       } else {
-        // Successful, so render
         res.render("genre_detail", {
           title: "Genre Detail",
           genre: results.genre,

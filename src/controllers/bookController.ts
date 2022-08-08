@@ -9,9 +9,10 @@ import BookInstance, { IBookInstance } from "../models/bookinstance"
 // homepage
 export const index: RequestHandler = (_, res) => {
   async.parallel(
+    // countDocuments -> returns count
     {
       book_count(callback) {
-        Book.countDocuments({}, callback) // empty object = find all
+        Book.countDocuments({}, callback)
       },
       book_instance_count(callback) {
         BookInstance.countDocuments({}, callback)
@@ -26,9 +27,8 @@ export const index: RequestHandler = (_, res) => {
         Genre.countDocuments({}, callback)
       },
     },
-    function(err, results) {
+    (err, results) => {
       res.render("index", {
-        // pass the title, err, and data to index.pug
         title: "Local Library Home",
         error: err,
         data: results,
@@ -41,10 +41,9 @@ export const index: RequestHandler = (_, res) => {
 export const book_list: RequestHandler = (_, res, next) => {
   Book.find({}, "title author") // select only the title and author
     .sort({ title: 1 }) // sort by title alphabetically
-    .populate("author")
+    .populate("author") // get the authors
     .exec((err, list_books) => {
       if (err) return next(err)
-      // render book_list
       res.render("book_list", { title: "Book List", book_list: list_books })
     })
 }
@@ -68,17 +67,12 @@ export const book_detail: RequestHandler = (req, res, next) => {
       },
     },
     function(err, results) {
-      if (err) {
-        return next(err)
-      }
-      if (results.book == null) {
-        // No results.
+      if (err) return next(err)
+      else if (results.book == null) {
         const err = new Error("Book not found")
         res.status(404)
         return next(err)
-      }
-      // Successful, so render.
-      else {
+      } else {
         const result = results as IResult
         res.render("book_detail", {
           title: result.book.title,

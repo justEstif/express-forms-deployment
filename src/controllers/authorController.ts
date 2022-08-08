@@ -29,19 +29,21 @@ export const author_detail: RequestHandler = (req, res, next) => {
         Book.find({ author: req.params.id }, "title summary").exec(callback)
       },
     },
-    function(err, results) {
+    (err, results) => {
       // Error in API usage.
       if (err) return next(err)
-      else if (results.author == null) {
-        const err = new Error("Author not found")
-        res.status(404)
-        return next(err)
-      } else {
-        res.render("author_detail", {
-          title: "Author Detail",
-          author: results.author,
-          author_books: results.authors_books,
-        })
+
+      switch (results.author) {
+        case null:
+          const err = new Error("Author not found")
+          res.status(404)
+          return next(err)
+        default:
+          res.render("author_detail", {
+            title: "Author Detail",
+            author: results.author,
+            author_books: results.authors_books,
+          })
       }
     }
   )

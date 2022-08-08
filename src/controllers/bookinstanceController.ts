@@ -3,7 +3,7 @@ import { RequestHandler } from "express"
 import BookInstance from "../models/bookinstance"
 import { IBook } from "../models/book"
 
-// Display: Reques list of _ BookInstances.
+// Display: Request list of _ BookInstances.
 export const bookinstance_list: RequestHandler = (_, res, next) => {
   BookInstance.find()
     .populate("book") // book id -> full Book doc
@@ -23,7 +23,6 @@ export const bookinstance_detail: RequestHandler = (req, res, next) => {
     .exec(function(err, bookinstance) {
       if (err) return next(err)
       else if (bookinstance == null) {
-        // No results.
         const err = new Error("Book copy not found")
         res.status(404)
         return next(err)
