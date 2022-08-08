@@ -1,8 +1,9 @@
 import { Schema, model, Types } from "mongoose"
 import { DateTime } from "luxon"
+import { IBook } from "./book"
 
 interface IBookInstance {
-  book: Types.ObjectId
+  book: Types.ObjectId | IBook
   imprint: string
   status: "Available" | "Maintenance" | "Loaned" | "Reserved"
   due_back: Date
@@ -20,14 +21,14 @@ const BookInstanceSchema = new Schema<IBookInstance>({
   due_back: { type: Date, default: Date.now },
 })
 
-BookInstanceSchema.virtual("url").get(function () {
+BookInstanceSchema.virtual("url").get(function() {
   return "/catalog/bookinstance/" + this._id
 })
 
-BookInstanceSchema.virtual("due_back_formatted").get(function () {
+BookInstanceSchema.virtual("due_back_formatted").get(function() {
   return DateTime.fromJSDate(this.due_back).toLocaleString(DateTime.DATE_MED)
 })
 
 const BookInstance = model<IBookInstance>("BookInstance", BookInstanceSchema)
-export {IBookInstance}
+export { IBookInstance }
 export default BookInstance
