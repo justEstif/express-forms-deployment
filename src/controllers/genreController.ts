@@ -30,9 +30,7 @@ export const genre_detail: RequestHandler = (req, res, next) => {
       },
     },
     function(err, results) {
-
       if (err) return next(err)
-
       else if (results.genre == null) {
         // No results.
         const err = new Error("Genre not found")
@@ -46,7 +44,6 @@ export const genre_detail: RequestHandler = (req, res, next) => {
           genre_books: results.genre_books,
         })
       }
-
     }
   )
 }
