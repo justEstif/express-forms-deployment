@@ -1,5 +1,6 @@
-import BookInstance from "../models/bookinstance"
 import { RequestHandler } from "express"
+
+import BookInstance from "../models/bookinstance"
 
 // Display: Reques list of _ BookInstances.
 export const bookinstance_list: RequestHandler = (_, res, next) => {

@@ -1,5 +1,6 @@
-import Author from "../models/author"
 import { RequestHandler } from "express"
+
+import Author from "../models/author"
 
 // Display list of all Authors.
 export const author_list: RequestHandler = (_, res, next) => {

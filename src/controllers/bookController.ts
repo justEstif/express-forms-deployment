@@ -1,9 +1,10 @@
 import async from "async"
+import { RequestHandler } from "express"
+
 import Book from "../models/book"
 import Author from "../models/author"
 import Genre from "../models/genre"
 import BookInstance from "../models/bookinstance"
-import { RequestHandler } from "express"
 
 // homepage
 export const index: RequestHandler = (_, res) => {
