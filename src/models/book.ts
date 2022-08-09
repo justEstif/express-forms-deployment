@@ -1,11 +1,12 @@
-import { Types, Schema, model } from "mongoose"
+import { Types, Schema, model } from "mongoose";
 
 interface IBook {
-  title: string
-  author: Types.ObjectId
-  summary: string
-  isbn: string
+  title: string;
+  author: Types.ObjectId;
+  summary: string;
+  isbn: string;
   genre: Types.ObjectId[];
+  url: string;
 }
 
 const BookSchema = new Schema<IBook>({
@@ -14,13 +15,13 @@ const BookSchema = new Schema<IBook>({
   summary: { type: String, required: true },
   isbn: { type: String, required: true },
   genre: [{ type: Schema.Types.ObjectId, ref: "Genre" }],
-})
+});
 
 // Virtual for book's URL
-BookSchema.virtual("url").get(function() {
-  return "/catalog/book/" + this._id
-})
+BookSchema.virtual("url").get(function () {
+  return "/catalog/book/" + this._id;
+});
 
-const Book = model<IBook>("Book", BookSchema)
-export { IBook }
-export default Book
+const Book = model<IBook>("Book", BookSchema);
+export { IBook };
+export default Book;
