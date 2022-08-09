@@ -37,8 +37,16 @@ export const bookinstance_detail: RequestHandler = (req, res, next) => {
 }
 
 // Display BookInstance create form on GET.
-export const bookinstance_create_get: RequestHandler = (_, res) => {
-  res.send("NOT IMPLEMENTED: BookInstance create GET")
+export const bookinstance_create_get: RequestHandler = (_, res, next) => {
+  Book.find({}, "title").exec((err, books) => {
+    if (err) return next(err)
+
+    // Successful, so render.
+    res.render("bookinstance_form", {
+      title: "Create BookInstance",
+      book_list: books,
+    })
+  })
 }
 
 // Handle BookInstance create on POST.
