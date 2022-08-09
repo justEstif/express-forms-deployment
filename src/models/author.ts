@@ -6,6 +6,7 @@ interface IAuthor {
   family_name: string
   date_of_birth?: Date
   date_of_death?: Date
+  url: string
 }
 
 const AuthorSchema = new Schema<IAuthor>({
@@ -15,7 +16,7 @@ const AuthorSchema = new Schema<IAuthor>({
   date_of_death: { type: Date },
 })
 
-AuthorSchema.virtual("name").get(function() {
+AuthorSchema.virtual("name").get(function () {
   if (this.first_name && this.family_name) {
     return `${this.family_name}, ${this.first_name}`
   } else {
@@ -23,7 +24,7 @@ AuthorSchema.virtual("name").get(function() {
   }
 })
 
-AuthorSchema.virtual("lifespan").get(function() {
+AuthorSchema.virtual("lifespan").get(function () {
   if (this.date_of_birth && this.date_of_death) {
     return `${DateTime.fromJSDate(this.date_of_birth).toLocaleString(
       DateTime.DATE_MED
@@ -39,9 +40,10 @@ AuthorSchema.virtual("lifespan").get(function() {
   }
 })
 
-AuthorSchema.virtual("url").get(function() {
+AuthorSchema.virtual("url").get(function () {
   return "/catalog/author/" + this._id
 })
 
 const Author = model<IAuthor>("Author", AuthorSchema)
+export { IAuthor }
 export default Author
