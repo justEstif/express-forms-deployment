@@ -7,6 +7,7 @@ interface IBookInstance {
   imprint: string
   status: "Available" | "Maintenance" | "Loaned" | "Reserved"
   due_back: Date
+  url: string
 }
 
 const BookInstanceSchema = new Schema<IBookInstance>({
