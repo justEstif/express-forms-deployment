@@ -1,9 +1,10 @@
 import async from "async"
-import { RequestHandler } from "express"
+import { RequestHandler, Request, Response, NextFunction } from "express"
+import { body, validationResult } from "express-validator"
 
 import Book, { IBook } from "../models/book"
 import Author from "../models/author"
-import Genre from "../models/genre"
+import Genre, { IGenre } from "../models/genre"
 import BookInstance, { IBookInstance } from "../models/bookinstance"
 
 // homepage
@@ -66,7 +67,7 @@ export const book_detail: RequestHandler = (req, res, next) => {
         BookInstance.find({ book: req.params.id }).exec(callback)
       },
     },
-    function(err, results) {
+    function (err, results) {
       if (err) return next(err)
       else if (results.book == null) {
         const err = new Error("Book not found")
@@ -85,14 +86,115 @@ export const book_detail: RequestHandler = (req, res, next) => {
 }
 
 // Display book create form on GET.
-export const book_create_get: RequestHandler = (_, res) => {
-  res.send("NOT IMPLEMENTED: Book create GET")
+export const book_create_get: RequestHandler = (_, res, next) => {
+  // Get all authors and genres, which we can use for adding to our book.
+  async.parallel(
+    {
+      authors(callback) {
+        Author.find(callback)
+      },
+      genres(callback) {
+        Genre.find(callback)
+      },
+    },
+    function (err, results) {
+      if (err) {
+        return next(err)
+      }
+      res.render("book_form", {
+        title: "Create Book",
+        authors: results.authors,
+        genres: results.genres,
+      })
+    }
+  )
 }
 
 // Handle book create on POST.
-export const book_create_post: RequestHandler = (_, res) => {
-  res.send("NOT IMPLEMENTED: Book create POST")
-}
+export const book_create_post = [
+  // Convert the genre to an array.
+  (req: Request, _: Response, next: NextFunction) => {
+    if (!Array.isArray(req.body.genre)) {
+      if (typeof req.body.genre === "undefined") req.body.genre = []
+      else req.body.genre = [req.body.genre]
+    }
+    next()
+  },
+
+  // Validate and sanitize fields.
+  body("title", "Title must not be empty.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body("author", "Author must not be empty.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body("summary", "Summary must not be empty.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body("isbn", "ISBN must not be empty").trim().isLength({ min: 1 }).escape(),
+  body("genre.*").escape(),
+
+  // Process request after validation and sanitization.
+  (req: Request, res: Response, next: NextFunction) => {
+    // Extract the validation errors from a request.
+    const errors = validationResult(req)
+
+    // Create a Book object with escaped and trimmed data.
+    const book = new Book({
+      title: req.body.title,
+      author: req.body.author,
+      summary: req.body.summary,
+      isbn: req.body.isbn,
+      genre: req.body.genre,
+    })
+
+    if (!errors.isEmpty()) {
+      // There are errors. Render form again with sanitized values/error messages.
+
+      // Get all authors and genres for form.
+      async.parallel(
+        {
+          authors(callback) {
+            Author.find(callback)
+          },
+          genres(callback) {
+            Genre.find(callback)
+          },
+        },
+        function (err, results) {
+          if (err) return next(err)
+          // Mark our selected genres as checked.
+          let genres = results.genres as IGenre[]
+          for (let i = 0; i < genres.length; i++) {
+            if (book.genre.indexOf(genres[i]._id) > -1) {
+              genres[i].checked = "true"
+            }
+          }
+          res.render("book_form", {
+            title: "Create Book",
+            authors: results.authors,
+            genres,
+            book: book,
+            errors: errors.array(),
+          })
+        }
+      )
+      return
+    } else {
+      // Data from form is valid. Save book.
+      book.save(function (err) {
+        if (err) {
+          return next(err)
+        }
+        //successful - redirect to new book record.
+        res.redirect(book.url)
+      })
+    }
+  },
+]
 
 // Display book delete form on GET.
 export const book_delete_get: RequestHandler = (_, res) => {
