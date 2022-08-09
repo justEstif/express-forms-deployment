@@ -3,13 +3,13 @@ import async from "async"
 import { body, validationResult } from "express-validator"
 
 import Genre from "../models/genre"
-import Book from "../models/book"
+import Book, { IBook } from "../models/book"
 
 // Display list of all Genre.
 export const genre_list: RequestHandler = (_, res, next) => {
   Genre.find()
     .sort({ name: 1 })
-    .exec(function (err, list_genres) {
+    .exec(function(err, list_genres) {
       if (err) return next(err)
       res.render("genre_list", {
         title: "Genre List",
@@ -30,7 +30,7 @@ export const genre_detail: RequestHandler = (req, res, next) => {
         Book.find({ genre: req.params.id }).exec(callback)
       },
     },
-    function (err, results) {
+    function(err, results) {
       if (err) return next(err)
       else if (results.genre == null) {
         const err = new Error("Genre not found")
@@ -86,13 +86,61 @@ export const genre_create_post = [
 ]
 
 // Display Genre delete form on GET.
-export const genre_delete_get: RequestHandler = (_, res) => {
-  res.send("NOT IMPLEMENTED: Genre delete GET")
+export const genre_delete_get: RequestHandler = (req, res, next) => {
+  async.parallel(
+    {
+      genre(callback) {
+        Genre.findById(req.params.id).exec(callback)
+      },
+      genre_books(callback) {
+        Book.find({ genre: req.params.id }).exec(callback)
+      },
+    },
+
+    (err, results) => {
+      if (err) return next(err)
+      else if (results.genre == null) res.redirect("/catalog/genre")
+      else {
+        res.render("genre_delete", {
+          title: "Delete Genre",
+          genre: results.genre,
+          genre_books: results.genre_books,
+        })
+      }
+    }
+  )
 }
 
 // Handle Genre delete on POST.
-export const genre_delete_post: RequestHandler = (_, res) => {
-  res.send("NOT IMPLEMENTED: Genre delete POST")
+export const genre_delete_post: RequestHandler = (req, res, next) => {
+  async.parallel(
+    {
+      genre(callback) {
+        Genre.findById(req.params.id).exec(callback)
+      },
+      genre_books(callback) {
+        Book.find({ genre: req.params.id }).exec(callback)
+      },
+    },
+
+    (err, results) => {
+      if (err) return next(err)
+      let genre_books: IBook[] = results.genre_books as IBook[]
+      if (genre_books.length > 0) {
+        res.render("genre_delete", {
+          title: "Delete Genre",
+          genre: results.genre,
+          genre_books: genre_books,
+        })
+        return
+      } else {
+        Genre.findByIdAndRemove(req.body.genreid, (err: Error) => {
+          if (err) return next(err)
+          res.redirect("/catalog/genre")
+        })
+      }
+    }
+  )
 }
 
 // Display Genre update form on GET.
