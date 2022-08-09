@@ -207,8 +207,53 @@ export const book_delete_post: RequestHandler = (_, res) => {
 }
 
 // Display book update form on GET.
-export const book_update_get: RequestHandler = (_, res) => {
-  res.send("NOT IMPLEMENTED: Book update GET")
+export const book_update_get: RequestHandler = (req, res, next) => {
+  // Get book, authors and genres for form.
+  async.parallel(
+    {
+      book(callback) {
+        Book.findById(req.params.id)
+          .populate("author")
+          .populate("genre")
+          .exec(callback)
+      },
+      authors(callback) {
+        Author.find(callback)
+      },
+      genres(callback) {
+        Genre.find(callback)
+      },
+    },
+    function (err, results) {
+      if (err) {
+        return next(err)
+      }
+      if (results.book == null) {
+        // No results.
+        const err = new Error("Book not found")
+        res.status(404)
+        return next(err)
+      }
+      // Success.
+      // Mark our selected genres as checked.
+
+      let genres: IGenre[] = results.genres as IGenre[]
+      for (const genre of genres) {
+        let book: IBook = results.book as IBook
+        for (const book_genre of book.genre) {
+          if (book_genre._id.valueOf() === genre._id.valueOf()) {
+            genre.checked = "true"
+          }
+        }
+      }
+      res.render("book_form", {
+        title: "Update Book",
+        authors: results.authors,
+        genres: genres,
+        book: results.book,
+      })
+    }
+  )
 }
 
 // Handle book update on POST.
