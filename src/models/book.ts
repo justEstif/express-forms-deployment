@@ -5,7 +5,7 @@ interface IBook {
   author: Types.ObjectId
   summary: string
   isbn: string
-  genre: Types.ObjectId
+  genre: Types.ObjectId[];
 }
 
 const BookSchema = new Schema<IBook>({
