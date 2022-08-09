@@ -7,6 +7,7 @@ interface IBook {
   isbn: string;
   genre: Types.ObjectId[];
   url: string;
+  _id: Types.ObjectId;
 }
 
 const BookSchema = new Schema<IBook>({
