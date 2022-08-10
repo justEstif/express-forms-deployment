@@ -2,14 +2,14 @@ import { Response, Request, NextFunction, RequestHandler } from "express"
 import async from "async"
 import { body, validationResult } from "express-validator"
 
-import Genre from "../models/genre"
+import Genre, { IGenre } from "../models/genre"
 import Book, { IBook } from "../models/book"
 
 // Display list of all Genre.
 export const genre_list: RequestHandler = (_, res, next) => {
   Genre.find()
     .sort({ name: 1 })
-    .exec(function(err, list_genres) {
+    .exec(function (err, list_genres) {
       if (err) return next(err)
       res.render("genre_list", {
         title: "Genre List",
@@ -30,7 +30,7 @@ export const genre_detail: RequestHandler = (req, res, next) => {
         Book.find({ genre: req.params.id }).exec(callback)
       },
     },
-    function(err, results) {
+    function (err, results) {
       if (err) return next(err)
       else if (results.genre == null) {
         const err = new Error("Genre not found")
@@ -144,11 +144,55 @@ export const genre_delete_post: RequestHandler = (req, res, next) => {
 }
 
 // Display Genre update form on GET.
-export const genre_update_get: RequestHandler = (_, res) => {
-  res.send("NOT IMPLEMENTED: Genre update GET")
+export const genre_update_get: RequestHandler = (req, res, next) => {
+  Genre.findById(
+    req.params.id,
+    (err: Error | undefined, genre: IGenre | any) => {
+      if (err) {
+        return next(err)
+      } else if (genre == null) {
+        const err = new Error("Genre not found")
+        res.status(404)
+        return next(err)
+      } else {
+        res.render("genre_form", { title: "Update Genre", genre: genre })
+      }
+    }
+  )
 }
 
 // Handle Genre update on POST.
-export const genre_update_post: RequestHandler = (_, res) => {
-  res.send("NOT IMPLEMENTED: Genre update POST")
-}
+export const genre_update_post = [
+  // Validate and sanitze the name field.
+  body("name", "Genre name must contain at least 3 characters")
+    .trim()
+    .isLength({ min: 3 })
+    .escape(),
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req)
+
+    const genre = new Genre({
+      name: req.body.name,
+      _id: req.params.id,
+    })
+
+    if (!errors.isEmpty()) {
+      res.render("genre_form", {
+        title: "Update Genre",
+        genre: genre,
+        errors: errors.array(),
+      })
+      return
+    } else {
+      Genre.findByIdAndUpdate(
+        req.params.id,
+        genre,
+        {},
+        (err, theGenre: IGenre | any) => {
+          if (err) return next(err)
+          else res.redirect(theGenre.url)
+        }
+      )
+    }
+  },
+]
