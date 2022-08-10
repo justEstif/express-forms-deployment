@@ -107,13 +107,27 @@ export const bookinstance_create_post = [
 ]
 
 // Display BookInstance delete form on GET.
-export const bookinstance_delete_get: RequestHandler = (_, res) => {
-  res.send("NOT IMPLEMENTED: BookInstance delete GET")
+export const bookinstance_delete_get: RequestHandler = (req, res, next) => {
+  BookInstance.findById(req.params.id)
+    .populate("book")
+    .exec((err, bookinstance) => {
+      if (err) return next(err)
+      else if (bookinstance == null) res.redirect("/catalog/bookinstances")
+      else {
+        res.render("bookinstance_delete", {
+          title: "Delete BookInstance",
+          bookinstance: bookinstance,
+        })
+      }
+    })
 }
 
 // Handle BookInstance delete on POST.
-export const bookinstance_delete_post: RequestHandler = (_, res) => {
-  res.send("NOT IMPLEMENTED: BookInstance delete POST")
+export const bookinstance_delete_post: RequestHandler = (req, res, next) => {
+  BookInstance.findByIdAndRemove(req.body.id, (err: Error) => {
+    if (err) return next(err)
+    res.redirect("/catalog/bookinstances")
+  })
 }
 
 // Display BookInstance update form on GET.
