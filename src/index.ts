@@ -2,6 +2,8 @@ import express from "express"
 import path from "path"
 import mongoose from "mongoose"
 import favicon from "serve-favicon"
+import compression from "compression"
+import helmet from "helmet"
 
 import endpoints from "./endpoints.config"
 import indexRouter from "./routes"
@@ -19,6 +21,9 @@ app.use(express.urlencoded({ extended: false }))
 // view engine setup
 app.set("views", path.join(__dirname, "..", "views"))
 app.set("view engine", "pug")
+
+app.use(compression()) // compress all paths
+app.use(helmet()) // protect site by setting appr headers
 
 // serve favico
 app.use(favicon(path.join(__dirname, "..", "public", "favicon.ico")))
